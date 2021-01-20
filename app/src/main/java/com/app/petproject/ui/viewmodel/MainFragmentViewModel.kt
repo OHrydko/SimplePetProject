@@ -17,4 +17,5 @@ class MainFragmentViewModel(repository: IMainRepository) : BaseViewModel(),
 
     override val movie: LiveData<Resource<Movie?>> = repository.getMovie()
 
+
 }

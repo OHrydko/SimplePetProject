@@ -1,6 +1,5 @@
 package com.app.petproject.repository
 
-import com.app.petproject.BaseDataSource
 import com.app.petproject.model.RestApi
 
 class RemoteDataSource(

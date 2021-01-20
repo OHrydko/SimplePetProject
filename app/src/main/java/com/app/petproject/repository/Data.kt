@@ -1,4 +1,4 @@
-package com.app.petproject
+package com.app.petproject.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
