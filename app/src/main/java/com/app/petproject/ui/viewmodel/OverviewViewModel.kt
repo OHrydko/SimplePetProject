@@ -2,27 +2,28 @@ package com.app.petproject.ui.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.app.petproject.BaseViewModel
-import com.app.petproject.IViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.app.petproject.entiti.Resource
 import com.app.petproject.entiti.information.Overview
-import com.app.petproject.repository.IMainRepository
+import com.app.petproject.repository.Repository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-interface IOverviewFragmentViewModel : IViewModel {
-    fun getOverview(id: Int)
-    var movie: LiveData<Resource<Overview?>>
-}
+@HiltViewModel
+class OverviewViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
 
-class OverviewViewModel(private val repository: IMainRepository) : BaseViewModel(),
-    IOverviewFragmentViewModel {
 
-    override var movie: LiveData<Resource<Overview?>> = MutableLiveData()
+    private var _response = MutableLiveData<Resource<Overview>>()
+    val response: LiveData<Resource<Overview>> = _response
 
-    override fun getOverview(id: Int) {
-        movie = repository.getOverview(id)
+    fun getOverview(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _response.postValue(repository.getOverview(id))
+        }
     }
-
-
 
 
 }
