@@ -19,6 +19,7 @@ class MainFragmentViewModel @Inject constructor(private val repository: Reposito
     val response: LiveData<Resource<Movie>> = _response
 
     fun getMovie() {
+        _response.value = Resource.loading(null)
         viewModelScope.launch(Dispatchers.IO) {
             _response.postValue(repository.getMovie())
         }

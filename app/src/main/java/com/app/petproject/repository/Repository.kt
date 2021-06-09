@@ -3,7 +3,7 @@ package com.app.petproject.repository
 import com.app.petproject.BuildConfig
 import com.app.petproject.entiti.Movie
 import com.app.petproject.entiti.Resource
-import com.app.petproject.entiti.information.Overview
+import com.app.petproject.entiti.info.Overview
 import com.app.petproject.model.RestApi
 
 

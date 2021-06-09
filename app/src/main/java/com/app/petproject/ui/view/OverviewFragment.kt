@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import com.app.petproject.BuildConfig
 import com.app.petproject.databinding.FragmentOverviewBinding
 import com.app.petproject.entiti.Resource
-import com.app.petproject.entiti.information.Overview
+import com.app.petproject.entiti.info.Overview
 import com.app.petproject.ui.viewmodel.OverviewViewModel
 import com.app.petproject.utils.gone
 import com.app.petproject.utils.visible
@@ -57,6 +57,7 @@ class OverviewFragment : Fragment() {
 
                 Resource.Status.ERROR -> {
                     Toast.makeText(activity, response.message, Toast.LENGTH_SHORT).show()
+                    binding.overviewText.gone()
                     binding.containerLouder.gone()
                 }
 
@@ -64,6 +65,10 @@ class OverviewFragment : Fragment() {
                     binding.containerLouder.visible()
             }
         })
+
+        binding.toolbar.setNavigationOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun loadDataToView(overview: Overview) {

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.petproject.entiti.Resource
-import com.app.petproject.entiti.information.Overview
+import com.app.petproject.entiti.info.Overview
 import com.app.petproject.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +19,7 @@ class OverviewViewModel @Inject constructor(private val repository: Repository) 
     val response: LiveData<Resource<Overview>> = _response
 
     fun getOverview(id: Int) {
+        _response.value = Resource.loading(null)
         viewModelScope.launch(Dispatchers.IO) {
             _response.postValue(repository.getOverview(id))
         }

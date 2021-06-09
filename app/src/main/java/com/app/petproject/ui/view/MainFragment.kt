@@ -18,7 +18,7 @@ import com.app.petproject.utils.visible
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainFragment : Fragment(), MovieAdapter.OnItemClick {
+class MainFragment : Fragment() {
 
     private val viewModel: MainFragmentViewModel by viewModels()
     private lateinit var movieAdapter: MovieAdapter
@@ -44,7 +44,8 @@ class MainFragment : Fragment(), MovieAdapter.OnItemClick {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        movieAdapter = MovieAdapter(ArrayList(), this)
+        movieAdapter = MovieAdapter(ArrayList())
+
         val layoutManagerRV = LinearLayoutManager(requireContext())
         binding.recyclerView.apply {
             layoutManager = layoutManagerRV
@@ -52,6 +53,22 @@ class MainFragment : Fragment(), MovieAdapter.OnItemClick {
             adapter = movieAdapter
         }
 
+        movieAdapter.onItemClick = {
+            val fragment = OverviewFragment()
+            val bundle = Bundle()
+            bundle.putInt("id", it)
+            fragment.arguments = bundle
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.frame, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
+        updateUI()
+
+    }
+
+    private fun updateUI() {
         viewModel.response.observe(requireActivity(), {
             if (it.data != null) {
                 when (it.status) {
@@ -72,15 +89,5 @@ class MainFragment : Fragment(), MovieAdapter.OnItemClick {
         })
     }
 
-    override fun onClick(id: Int) {
-        val fragment = OverviewFragment()
-        val bundle = Bundle()
-        bundle.putInt("id", id)
-        fragment.arguments = bundle
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.frame, fragment)
-            .addToBackStack(null)
-            .commit()
-    }
 
 }

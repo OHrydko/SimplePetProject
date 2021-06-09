@@ -1,7 +1,7 @@
 package com.app.petproject.model
 
 import com.app.petproject.entiti.Movie
-import com.app.petproject.entiti.information.Overview
+import com.app.petproject.entiti.info.Overview
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
