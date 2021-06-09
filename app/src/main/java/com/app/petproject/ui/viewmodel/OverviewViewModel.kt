@@ -15,7 +15,6 @@ import javax.inject.Inject
 @HiltViewModel
 class OverviewViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
 
-
     private var _response = MutableLiveData<Resource<Overview>>()
     val response: LiveData<Resource<Overview>> = _response
 
@@ -24,6 +23,4 @@ class OverviewViewModel @Inject constructor(private val repository: Repository) 
             _response.postValue(repository.getOverview(id))
         }
     }
-
-
 }

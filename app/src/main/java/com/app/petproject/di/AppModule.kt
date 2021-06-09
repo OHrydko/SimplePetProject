@@ -1,9 +1,14 @@
-package com.app.petproject.dagger
+package com.app.petproject.di
 
+import android.app.Application
 import android.content.Context
+import com.app.petproject.BuildConfig
 import com.app.petproject.model.RestApi
+import com.app.petproject.repository.Repository
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -12,13 +17,29 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
-class NetworkModule {
+@InstallIn(SingletonComponent::class)
+object AppModule {
+
+
     @Singleton
     @Provides
-    fun provideNewsApi(client: OkHttpClient): RestApi {
+    fun provideRepository(restApi: RestApi): Repository {
+        return Repository(restApi)
+    }
+
+
+    @Singleton
+    @Provides
+    fun provideContext(application: Application): Context {
+        return application
+    }
+
+    @Singleton
+    @Provides
+    fun provideApi(client: OkHttpClient): RestApi {
         return Retrofit.Builder()
             //TODO change domain
-            .baseUrl("https://api.themoviedb.org/")
+            .baseUrl(BuildConfig.API)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(client)
@@ -27,10 +48,9 @@ class NetworkModule {
     }
 
 
-
     @Singleton
     @Provides
-    fun provideOkHttpClient(context: Context): OkHttpClient {
+    fun provideOkHttpClient(): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         return OkHttpClient()
@@ -38,4 +58,5 @@ class NetworkModule {
             .addInterceptor(loggingInterceptor)
             .build()
     }
+
 }

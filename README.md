@@ -3,7 +3,7 @@ This simple app  loads information from [Movie DB](https://developers.themoviedb
 
 1. ViewModel.
 2. LiveData.
-3. Dagger 2 
+3. Hilt
 4. Kotlin Coroutines
 5. Retrofit
 6. Room
