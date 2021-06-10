@@ -4,32 +4,35 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.petproject.R
-import com.app.petproject.adapter.MovieAdapter
 import com.app.petproject.databinding.MainFragmentBinding
-import com.app.petproject.entiti.Resource
+import com.app.petproject.paging.LoaderAdapter
+import com.app.petproject.paging.MoviePageAdapter
 import com.app.petproject.ui.viewmodel.MainFragmentViewModel
-import com.app.petproject.utils.gone
-import com.app.petproject.utils.visible
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
 
     private val viewModel: MainFragmentViewModel by viewModels()
-    private lateinit var movieAdapter: MovieAdapter
+
+    private val moviesAdapter by lazy(LazyThreadSafetyMode.NONE) {
+        MoviePageAdapter()
+    }
 
     private var _binding: MainFragmentBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.getMovie()
-
+        viewModel.getMovies()
     }
 
     override fun onCreateView(
@@ -38,22 +41,38 @@ class MainFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = MainFragmentBinding.inflate(inflater, container, false)
-        // Inflate the layout for this fragment
         return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        movieAdapter = MovieAdapter(ArrayList())
 
+        //initialize recycler view
         val layoutManagerRV = LinearLayoutManager(requireContext())
         binding.recyclerView.apply {
             layoutManager = layoutManagerRV
             setHasFixedSize(true)
-            adapter = movieAdapter
+            adapter = moviesAdapter
+        }
+        //progress bar in footer and header
+        with(binding) {
+            recyclerView.adapter = moviesAdapter.withLoadStateHeaderAndFooter(
+                header = LoaderAdapter(),
+                footer = LoaderAdapter()
+            )
         }
 
-        movieAdapter.onItemClick = {
+        //starter progress bar
+        moviesAdapter.addLoadStateListener { state ->
+            with(binding) {
+                recyclerView.isVisible = state.refresh != LoadState.Loading
+                containerLouder.isVisible = state.refresh == LoadState.Loading
+            }
+        }
+
+        //get id film
+        //start overview fragment and send id
+        moviesAdapter.onItemClick = {
             val fragment = OverviewFragment()
             val bundle = Bundle()
             bundle.putInt("id", it)
@@ -64,29 +83,14 @@ class MainFragment : Fragment() {
                 .commit()
         }
 
-        updateUI()
-
-    }
-
-    private fun updateUI() {
-        viewModel.response.observe(requireActivity(), {
-            if (it.data != null) {
-                when (it.status) {
-                    Resource.Status.SUCCESS -> {
-                        binding.containerLouder.gone()
-                        movieAdapter.addMovies(it.data.results)
-
-                    }
-                    Resource.Status.ERROR -> {
-                        Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
-                        binding.containerLouder.gone()
-                    }
-
-                    Resource.Status.LOADING ->
-                        binding.containerLouder.visible()
-                }
+        //update adapter data from api
+        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+            viewModel.movie?.collectLatest { pagingData ->
+                moviesAdapter.submitData(pagingData)
             }
-        })
+        }
+
+
     }
 
 
