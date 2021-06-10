@@ -1,6 +1,7 @@
 package com.app.petproject.ui.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,7 +47,6 @@ class MainFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
         //initialize recycler view
         val layoutManagerRV = LinearLayoutManager(requireContext())
         binding.recyclerView.apply {
@@ -55,8 +55,12 @@ class MainFragment : Fragment() {
             adapter = moviesAdapter
         }
         with(binding) {
+            //update page
+            swipeRefresh.setOnRefreshListener {
+                moviesAdapter.refresh()
+                swipeRefresh.isRefreshing = false
+            }
             //show retry button
-            swipeRefresh.setOnRefreshListener { moviesAdapter.refresh() }
             //show progress bar in footer and header
             recyclerView.adapter = moviesAdapter.withLoadStateHeaderAndFooter(
                 header = LoaderAdapter(moviesAdapter),
@@ -71,7 +75,6 @@ class MainFragment : Fragment() {
                 recyclerView.isVisible = state.refresh != LoadState.Loading
                 //update state progress bar and refresh when doing update
                 containerLouder.isVisible = state.refresh == LoadState.Loading
-                swipeRefresh.isRefreshing = state.refresh == LoadState.Loading
             }
         }
 
@@ -94,8 +97,6 @@ class MainFragment : Fragment() {
                 moviesAdapter.submitData(pagingData)
             }
         }
-
-
     }
 
 

@@ -1,7 +1,9 @@
 package com.app.petproject.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.app.petproject.entiti.Results
 import com.app.petproject.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +17,7 @@ class MainFragmentViewModel @Inject constructor(private val repository: Reposito
 
     fun getMovies() {
         movie = repository.getMovies()
-//            .cachedIn(viewModelScope)
+            .cachedIn(viewModelScope)
     }
 
 
