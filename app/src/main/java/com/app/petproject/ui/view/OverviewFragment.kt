@@ -20,18 +20,23 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class OverviewFragment : Fragment() {
 
-    private var ids = 0
+    //id of film
+    private var filmId = 0
+
     private var _binding: FragmentOverviewBinding? = null
     private val binding get() = _binding!!
+
     private val viewModel: OverviewViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val bundle = this.arguments
+        //get id film from MainFragment
         if (bundle != null) {
-            ids = bundle.getInt("id")
+            filmId = bundle.getInt("id")
         }
-        viewModel.getOverview(ids)
+        //get data of film by id from MainFragment
+        viewModel.getOverview(filmId)
     }
 
     override fun onCreateView(
@@ -40,7 +45,6 @@ class OverviewFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentOverviewBinding.inflate(inflater, container, false)
-        // Inflate the layout for this fragment
         return binding.root
     }
 
@@ -65,12 +69,15 @@ class OverviewFragment : Fragment() {
                     binding.containerLouder.visible()
             }
         })
-
+        //back button
         binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressed()
         }
     }
 
+    /**
+     * Display data
+     */
     private fun loadDataToView(overview: Overview) {
         val url = BuildConfig.API_PHOTO + overview.poster_path
         Glide.with(this).load(url).centerCrop().into(binding.image)

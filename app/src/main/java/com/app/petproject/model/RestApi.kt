@@ -8,6 +8,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RestApi {
+    /**
+     * get list trend movies
+     */
     @GET("3/trending/{media_type}/{time_window}")
     suspend fun getMovie(
         @Path("media_type") media_type: String,
@@ -16,7 +19,9 @@ interface RestApi {
         @Query("page") page: Int
     ): Response<Movie>
 
-
+    /**
+     * get data about film by id
+     */
     @GET("3/movie/{movie_id}")
     suspend fun getOverview(
         @Path("movie_id") movie_id: Int,

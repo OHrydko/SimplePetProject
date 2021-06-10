@@ -54,19 +54,24 @@ class MainFragment : Fragment() {
             setHasFixedSize(true)
             adapter = moviesAdapter
         }
-        //progress bar in footer and header
         with(binding) {
+            //show retry button
+            swipeRefresh.setOnRefreshListener { moviesAdapter.refresh() }
+            //show progress bar in footer and header
             recyclerView.adapter = moviesAdapter.withLoadStateHeaderAndFooter(
-                header = LoaderAdapter(),
-                footer = LoaderAdapter()
+                header = LoaderAdapter(moviesAdapter),
+                footer = LoaderAdapter(moviesAdapter)
             )
         }
 
         //starter progress bar
         moviesAdapter.addLoadStateListener { state ->
             with(binding) {
+                //display recyclerView when don't loading
                 recyclerView.isVisible = state.refresh != LoadState.Loading
+                //update state progress bar and refresh when doing update
                 containerLouder.isVisible = state.refresh == LoadState.Loading
+                swipeRefresh.isRefreshing = state.refresh == LoadState.Loading
             }
         }
 

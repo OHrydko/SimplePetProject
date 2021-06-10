@@ -1,93 +1,42 @@
 package com.app.petproject.paging
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.app.petproject.databinding.ItemErrorBinding
-import com.app.petproject.databinding.ItemProgressBinding
+import com.app.petproject.databinding.ItemNetworkStateBinding
 
-class LoaderAdapter() : LoadStateAdapter<LoaderAdapter.ItemViewHolder>() {
+class LoaderAdapter(
+    private val adapter: MoviePageAdapter
+) : LoadStateAdapter<LoaderAdapter.NetworkStateItemViewHolder>() {
 
-    abstract class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        abstract fun bind(loadState: LoadState)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState) =
+        NetworkStateItemViewHolder(
+            ItemNetworkStateBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        ) { adapter.retry() }
 
-    override fun getStateViewType(loadState: LoadState) = when (loadState) {
-        is LoadState.NotLoading -> error("Not supported")
-        LoadState.Loading -> PROGRESS
-        is LoadState.Error -> ERROR
-    }
-
-    override fun onBindViewHolder(holder: ItemViewHolder, loadState: LoadState) {
+    override fun onBindViewHolder(holder: NetworkStateItemViewHolder, loadState: LoadState) =
         holder.bind(loadState)
-    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): ItemViewHolder {
-        return when (loadState) {
-            LoadState.Loading -> ProgressViewHolder(LayoutInflater.from(parent.context), parent)
-            is LoadState.Error -> ErrorViewHolder(LayoutInflater.from(parent.context), parent)
-            is LoadState.NotLoading -> error("Not supported")
-        }
-    }
+    class NetworkStateItemViewHolder(
+        private val binding: ItemNetworkStateBinding,
+        private val retryCallback: () -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
 
-    private companion object {
-
-        private const val ERROR = 1
-        private const val PROGRESS = 0
-    }
-
-    class ProgressViewHolder internal constructor(
-        private val binding: ItemProgressBinding
-    ) : ItemViewHolder(binding.root) {
-
-        override fun bind(loadState: LoadState) {
-            // Do nothing
-        }
-
-        companion object {
-
-            operator fun invoke(
-                layoutInflater: LayoutInflater,
-                parent: ViewGroup? = null,
-                attachToRoot: Boolean = false
-            ): ProgressViewHolder {
-                return ProgressViewHolder(
-                    ItemProgressBinding.inflate(
-                        layoutInflater,
-                        parent,
-                        attachToRoot
-                    )
-                )
-            }
-        }
-    }
-
-    class ErrorViewHolder internal constructor(
-        private val binding: ItemErrorBinding
-    ) : ItemViewHolder(binding.root) {
-
-        override fun bind(loadState: LoadState) {
-            require(loadState is LoadState.Error)
-            binding.errorMessage.text = loadState.error.localizedMessage
-        }
-
-        companion object {
-
-            operator fun invoke(
-                layoutInflater: LayoutInflater,
-                parent: ViewGroup? = null,
-                attachToRoot: Boolean = false
-            ): ErrorViewHolder {
-                return ErrorViewHolder(
-                    ItemErrorBinding.inflate(
-                        layoutInflater,
-                        parent,
-                        attachToRoot
-                    )
-                )
+        fun bind(loadState: LoadState) {
+            with(binding) {
+                progressBar.isVisible = loadState is LoadState.Loading
+                retryButton.isVisible = loadState is LoadState.Error
+                errorMsg.isVisible =
+                    !(loadState as? LoadState.Error)?.error?.message.isNullOrBlank()
+                errorMsg.text = (loadState as? LoadState.Error)?.error?.message
+                retryButton.setOnClickListener { retryCallback() }
             }
         }
     }
