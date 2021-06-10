@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.app.petproject.BuildConfig
 import com.app.petproject.databinding.FragmentOverviewBinding
 import com.app.petproject.entiti.Resource
@@ -16,6 +17,7 @@ import com.app.petproject.utils.gone
 import com.app.petproject.utils.visible
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class OverviewFragment : Fragment() {
@@ -52,23 +54,28 @@ class OverviewFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.response.observe(requireActivity(), { response ->
-            when (response.status) {
-                Resource.Status.SUCCESS -> {
-                    binding.containerLouder.gone()
-                    response.data?.let { it -> loadDataToView(it) }
-                }
 
-                Resource.Status.ERROR -> {
-                    Toast.makeText(activity, response.message, Toast.LENGTH_SHORT).show()
-                    binding.overviewText.gone()
-                    binding.containerLouder.gone()
-                }
+        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+            viewModel.response.collect { response ->
 
-                Resource.Status.LOADING ->
-                    binding.containerLouder.visible()
+                when (response.status) {
+                    Resource.Status.SUCCESS -> {
+                        binding.containerLouder.gone()
+                        response.data?.let { it -> loadDataToView(it) }
+                    }
+
+                    Resource.Status.ERROR -> {
+                        Toast.makeText(activity, response.message, Toast.LENGTH_SHORT).show()
+                        binding.overviewText.gone()
+                        binding.containerLouder.gone()
+                    }
+
+                    Resource.Status.LOADING ->
+                        binding.containerLouder.visible()
+                }
             }
-        })
+        }
+
         //back button
         binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressed()
