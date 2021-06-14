@@ -33,6 +33,6 @@ class Repository(private val restApi: RestApi) : BaseDataSource() {
      * let's define page size, page size is the only required param, rest is optional
      */
     private fun getDefaultPageConfig(): PagingConfig {
-        return PagingConfig(pageSize = 20, enablePlaceholders = false)
+        return PagingConfig(pageSize = 20, enablePlaceholders = true)
     }
 }

@@ -19,6 +19,4 @@ class MainFragmentViewModel @Inject constructor(private val repository: Reposito
         movie = repository.getMovies()
             .cachedIn(viewModelScope)
     }
-
-
 }
